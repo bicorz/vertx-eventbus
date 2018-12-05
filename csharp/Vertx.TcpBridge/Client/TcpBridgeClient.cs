@@ -52,18 +52,18 @@ namespace io.vertx.ext.tcpbridge.client
         private readonly string address;
         private readonly int port;
 
+        private readonly Hashtable handlersHash;
+
         private readonly ManualResetEvent SocketReady;
         private readonly ManualResetEvent IsClosed;
+        private readonly object writeLock;
         private readonly Thread workerThread;
-
-        private readonly Hashtable handlersHash = new Hashtable(); //holds callbacks
 
         private TcpClient Client { get; set; }
         private Stream SocketStream { get; set; }
         private bool IsSocketClosed { get; set; }
 
-        private readonly object writeLock = new object();
-        private readonly UTF8Encoding encoding = new UTF8Encoding();
+        private readonly UTF8Encoding encoding;
 
         private delegate void Action();
 
@@ -78,9 +78,15 @@ namespace io.vertx.ext.tcpbridge.client
             this.address = address;
             this.port = port;
 
+            this.handlersHash = new Hashtable();
+
             this.SocketReady = new ManualResetEvent(false);
             this.IsClosed = new ManualResetEvent(false);
+            this.writeLock = new object();
             this.workerThread = new Thread(new ThreadStart(this.Run));
+
+            this.encoding = new UTF8Encoding();
+
             workerThread.Start();
         }
 
@@ -92,7 +98,7 @@ namespace io.vertx.ext.tcpbridge.client
 
             while (true)
             {
-                if(this.IsClosed.WaitOne(0))
+                if (this.IsClosed.WaitOne(0))
                 {
                     Log.Warn("socket closed notified. breaking worker thread.");
                     break;
@@ -102,6 +108,7 @@ namespace io.vertx.ext.tcpbridge.client
                 {
                     this.ReopenSocket();
                     this.SocketReady.Set();
+                    this.ReRegisterAll();
                 }
                 catch (Exception e)
                 {
@@ -123,12 +130,12 @@ namespace io.vertx.ext.tcpbridge.client
                         {
                             this.HandleToLocalBus(payload);
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
                             Log.ErrorFormat("Exception while handling bridge object {0} {1}", payload, e);
                         }
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         Log.Error($"exception while reading frame. will reconnect after {option.ReconnetDelayInSec} sec.", e);
                         this.SocketReady.Reset();
@@ -141,7 +148,7 @@ namespace io.vertx.ext.tcpbridge.client
 
         private void HandleToLocalBus(JObject payload)
         {
-            Log.InfoFormat("Read Frame: {0}" , payload);
+            Log.InfoFormat("Read Frame: {0}", payload);
             string address = payload[KeyAddress]?.Value<string>();
             string replyAddress = payload[KeyReplayAddress]?.Value<string>();
             string payloadType = payload[KeyType]?.Value<string>();
@@ -170,11 +177,11 @@ namespace io.vertx.ext.tcpbridge.client
                 var handlers = (Handlers<Message<object>>)handlersHash[message.Address];
                 if (handlers != null)
                 {
-                    foreach(var handler in handlers.List)
+                    foreach (var handler in handlers.List)
                     {
                         handler.BeginInvoke(message, null, null);
                         callFound = true;
-                        if(message.IsSend)
+                        if (message.IsSend)
                         {
                             break;
                         }
@@ -206,6 +213,26 @@ namespace io.vertx.ext.tcpbridge.client
                 this.SocketStream = Client.GetStream();
             }
             Log.InfoFormat("socket reopen complete on address {0}:{1}", this.address, this.port);
+
+        }
+
+        void ReRegisterAll()
+        {
+            lock (this.handlersHash)
+            {
+                int handlersCount = 0;
+                foreach (var addressObj in handlersHash.Keys)
+                {
+                    string address = addressObj as string;
+                    var handlers = (Handlers<Message<object>>)handlersHash[addressObj];
+                    foreach (var handler in handlers.List)
+                    {
+                        handlersCount++;
+                        this.RegisterOrRemove(true, address, null);
+                    }
+                }
+                Log.InfoFormat("address reregister requested for {0}.", handlersCount);
+            }
         }
 
 
@@ -233,8 +260,8 @@ namespace io.vertx.ext.tcpbridge.client
                     handlersHash[address] = handlers;
                 }
                 handlers.List.Add(handler);
+                this.RegisterOrRemove(true, address, null);
             }
-            this.RegisterOrRemove(true, address, null);
         }
 
         public void Unregister(string address, Handler<Message<object>> handler)
@@ -247,8 +274,8 @@ namespace io.vertx.ext.tcpbridge.client
                 {
                     handlers.List.Remove(handler);
                 }
+                this.RegisterOrRemove(false, address, null);
             }
-            this.RegisterOrRemove(false, address, null);
         }
 
         public void Send(string address, object body, string replyAddress, DeliveryOptions deliveryOptions, Handler<AsyncResult<Message<object>>> replyHandler)
