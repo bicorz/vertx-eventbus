@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26124.0
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Vertx.Core", "Vertx.Core\Vertx.Core.shproj", "{917A4C33-6651-4E69-B803-4D6BB9500974}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMain", "TestMain\TestMain.csproj", "{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Vertx.TcpBridge", "Vertx.TcpBridge\Vertx.TcpBridge.shproj", "{2D740570-5F63-461E-B2A1-19A9B3F1CC41}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib.Vertx.TcpBridge", "Lib.Vertx.TcpBridge\Lib.Vertx.TcpBridge.csproj", "{CBEC7F47-A324-4047-AC8A-69E24767149F}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Vertx.TcpBridge\Vertx.TcpBridge.projitems*{2d740570-5f63-461e-b2a1-19a9b3f1cc41}*SharedItemsImports = 13
+		Vertx.Core\Vertx.Core.projitems*{917a4c33-6651-4e69-b803-4d6bb9500974}*SharedItemsImports = 13
+		Vertx.Core\Vertx.Core.projitems*{cbec7f47-a324-4047-ac8a-69e24767149f}*SharedItemsImports = 4
+		Vertx.TcpBridge\Vertx.TcpBridge.projitems*{cbec7f47-a324-4047-ac8a-69e24767149f}*SharedItemsImports = 4
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}.Debug|x64.Build.0 = Debug|Any CPU
+		{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}.Debug|x86.Build.0 = Debug|Any CPU
+		{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}.Release|x64.ActiveCfg = Release|Any CPU
+		{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}.Release|x64.Build.0 = Release|Any CPU
+		{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}.Release|x86.ActiveCfg = Release|Any CPU
+		{F7692B58-7EAF-4F00-BF19-84ABEA6AFC01}.Release|x86.Build.0 = Release|Any CPU
+		{CBEC7F47-A324-4047-AC8A-69E24767149F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBEC7F47-A324-4047-AC8A-69E24767149F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBEC7F47-A324-4047-AC8A-69E24767149F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CBEC7F47-A324-4047-AC8A-69E24767149F}.Debug|x64.Build.0 = Debug|Any CPU
+		{CBEC7F47-A324-4047-AC8A-69E24767149F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CBEC7F47-A324-4047-AC8A-69E24767149F}.Debug|x86.Build.0 = Debug|Any CPU
+		{CBEC7F47-A324-4047-AC8A-69E24767149F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBEC7F47-A324-4047-AC8A-69E24767149F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBEC7F47-A324-4047-AC8A-69E24767149F}.Release|x64.ActiveCfg = Release|Any CPU
+		{CBEC7F47-A324-4047-AC8A-69E24767149F}.Release|x64.Build.0 = Release|Any CPU
+		{CBEC7F47-A324-4047-AC8A-69E24767149F}.Release|x86.ActiveCfg = Release|Any CPU
+		{CBEC7F47-A324-4047-AC8A-69E24767149F}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6B248092-5262-4847-A152-4F9AD612057A}
+	EndGlobalSection
+EndGlobal

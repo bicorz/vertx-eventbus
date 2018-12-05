@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>917a4c33-6651-4e69-b803-4d6bb9500974</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>io.vertx.core</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AsyncResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)eventbus\DeliveryOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)eventbus\EventBusOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)eventbus\EventBus.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)eventbus\Headers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)eventbus\impl\EventBusImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)eventbus\impl\Handlers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)eventbus\Message.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)impl\VertxImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)logging\Logger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)net\SocketUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Vertx.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VertxOptions.cs" />
+  </ItemGroup>
+</Project>
