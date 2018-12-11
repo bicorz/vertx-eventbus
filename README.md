@@ -1,5 +1,5 @@
 # vertx-eventbus-bridge-clients
-This project is created to have vertx bridge-client for various languages. Currently we have only for .NET (all framework). 
+This project is created to have vertx bridge-client for various languages. Currently we have only for .NET standard. 
 To contribute on other languages, Pull Requests are always welcome. Below is a sample program using TcpBridgeClient.
 ```cs
             TcpBridgeClient tcpBridgeClient = new TcpBridgeClient( "127.0.0.1", 7000, option);
