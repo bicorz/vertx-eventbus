@@ -4,13 +4,11 @@ To contribute on other languages, Pull Requests are always welcome. Below is a s
 ```cs
             TcpBridgeClient tcpBridgeClient = new TcpBridgeClient( "127.0.0.1", 7000, option);
             tcpBridgeClient.Register(
-                  "client.dotnet.test",                                              //registered address
+                  "client.consumer1",                                              //registered address
                   (message) =>  Console.WriteLine("message received from server");   //callback
             );
             tcpBridgeClient.Send(
                   "server.echo",          //server address
-                  "message to server",    //message
-                  "client.dotnet.test",   //callback address registered above
-                  );       
+                  "message to server");    //message
 ```
 You can link the library as a nuget package at https://www.nuget.org/packages/Vertx.TcpBridge/
