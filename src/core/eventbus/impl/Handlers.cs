@@ -9,16 +9,16 @@ namespace io.vertx.core.eventbus.impl
     {
 
         private int pos;
-        public readonly List<Handler<T>> List = new List<Handler<T>>();
+        public readonly List<T> List = new List<T>();
 
-        public Handler<T> Choose()
+        public T Choose()
         {
             while (true)
             {
                 int size = this.List.Count;
                 if (size == 0)
                 {
-                    return null;
+                    return (T)(object)null;
                 }
 
                 int p = Interlocked.Increment(ref this.pos);
@@ -30,7 +30,7 @@ namespace io.vertx.core.eventbus.impl
                 {
                     return this.List[p];
                 }
-                catch (ArgumentOutOfRangeException e)
+                catch (ArgumentOutOfRangeException)
                 {
                     this.pos = 0;
                 }

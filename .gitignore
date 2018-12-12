@@ -3,3 +3,7 @@
 ################################################################################
 
 /.vs/Vertx
+/src/core/bin/Debug/netstandard2.0
+/src/core/obj
+/test/main/obj
+/test/main/bin/Debug/netcoreapp2.1
