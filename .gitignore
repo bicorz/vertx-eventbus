@@ -7,3 +7,5 @@
 /src/core/obj
 /test/main/obj
 /test/main/bin/Debug/netcoreapp2.1
+/src/tcpbridge.client/obj
+/src/tcpbridge.client/bin/Debug/netstandard2.0

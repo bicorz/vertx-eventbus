@@ -1,4 +1,6 @@
 ﻿using io.vertx.core.impl;
+using io.vertx.core.logging;
+using log4net;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,6 +13,8 @@ namespace io.vertx.core.eventbus.impl
     public class EventBus : IEventBus
     {
 
+        private static readonly ILog Log = Logger.GetLogger(typeof(EventBus));
+
         private readonly ConcurrentDictionary<string, Handlers<MessageConsumer<object>>> consumerActionHash;
         private int genAddressCount = 0;
         
@@ -22,12 +26,6 @@ namespace io.vertx.core.eventbus.impl
         public IMessageConsumer<T> Consumer<T>(string address)
         {
             IMessageConsumer<T> toReturn = new MessageConsumer<T>(this, address);
-            return toReturn;
-        }
-
-        public IMessageConsumer<T> Consumer<T>(string address, Action<IMessage<T>> handler)
-        {
-            MessageConsumer<T> toReturn = new MessageConsumer<T>(this, address);
             Handlers<MessageConsumer<object>> actions;
             lock (consumerActionHash)
             {
@@ -42,6 +40,13 @@ namespace io.vertx.core.eventbus.impl
                 }
                 actions.List.Add((MessageConsumer<object>)(object)toReturn);
             }
+            Log.InfoFormat("consumer registered at {0}", address);
+            return toReturn;
+        }
+
+        public IMessageConsumer<T> Consumer<T>(string address, Action<IMessage<T>> handler)
+        {
+            IMessageConsumer<T> toReturn = this.Consumer<T>(address);
             toReturn.Handler(handler);
             return toReturn;
         }
@@ -97,6 +102,7 @@ namespace io.vertx.core.eventbus.impl
 
         private void SendOrPubInternal<T>(Message<object> message, DeliveryOptions deliveryOptions, Action<IAsyncResult<IMessage<T>>> replyHandle)
         {
+            Log.InfoFormat("sendOrPub[{0}] to address:{1} with replyAddress:{2}", message.IsSend, message.Address, message.ReplyAddress);
             MessageConsumer<object> consumer = null;
             lock (consumerActionHash)
             {
@@ -111,7 +117,8 @@ namespace io.vertx.core.eventbus.impl
                     {
                         foreach(var currConsumer in consumers.List)
                         {
-                            Task.Run(() => currConsumer?.HandlerAction(message));
+                            Task task = Task.Run(() => currConsumer?.HandlerAction(message));
+                            this.LogTaskFault(task);
                         }
                     }
                 }
@@ -131,6 +138,8 @@ namespace io.vertx.core.eventbus.impl
                         return false;
                     }
                 });
+                this.LogTaskFault(actionTask);
+
                 if(replyHandle != null)
                 {
                     //creating temporary address for reply handle which will be invalid after ttl
@@ -144,9 +153,12 @@ namespace io.vertx.core.eventbus.impl
 
                     //clear after ttl
                     Task timeoutTask = Task.Delay((int)deliveryOptions.Timeout);
-                    timeoutTask.ContinueWith((taskResult) => tempMessageConsumer.UnRegister());
+                    this.LogTaskFault(timeoutTask);
 
-                    Task.WhenAny(timeoutTask, actionTask).ContinueWith((taskResult) =>
+                    Task unregisterTask = timeoutTask.ContinueWith((taskResult) => tempMessageConsumer.UnRegister());
+                    this.LogTaskFault(unregisterTask);
+
+                    Task decisionTask = Task.WhenAny(timeoutTask, actionTask).ContinueWith((taskResult) =>
                     {
                         Exception ex = null;
                         if (taskResult.Result == actionTask)
@@ -168,6 +180,7 @@ namespace io.vertx.core.eventbus.impl
                             Task.Factory.StartNew(() => replyHandle(asyncResult));
                         }
                     });
+                    this.LogTaskFault(decisionTask);
                 }
             }
         }
@@ -175,6 +188,14 @@ namespace io.vertx.core.eventbus.impl
         private string NewAddress()
         {
             return $"{Interlocked.Increment(ref this.genAddressCount)}";
+        }
+
+        private void LogTaskFault(Task task)
+        {
+            task.ContinueWith((t) =>
+            {
+                Log.Error("exception in task", t.Exception.InnerException);
+            }, TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnFaulted);
         }
 
     }
