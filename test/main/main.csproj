@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\core\core.csproj" />
+    <ProjectReference Include="..\..\src\tcpbridge.client\tcpbridge.client.csproj" />
   </ItemGroup>
 
 </Project>

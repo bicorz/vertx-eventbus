@@ -23,7 +23,11 @@ namespace io.vertx.ext.tcpbridge.client
     {
         IMessageConsumer<T> Register<T>(string address, Action<IMessage<T>> handler);
         void UnRegister<T>(IMessageConsumer<T> consumer);
+
+        void Send(string address, object body);
         void Send<T>(string address, object body, DeliveryOptions deliveryOptions, Action<IAsyncResult<IMessage<T>>> replyHandle);
+
+        void Publish(string address, object body);
         void Publish(string address, object body, DeliveryOptions deliveryOptions);
     }
 
@@ -70,15 +74,18 @@ namespace io.vertx.ext.tcpbridge.client
         private delegate void Action();
 
         //proxy constructors
-        public TcpBridgeClient(string address, int port) : this(address, port, null) { }
+        public TcpBridgeClient(IEventBus eventBus, string address, int port) : this(eventBus, address, port, null) { }
+        public TcpBridgeClient(string address, int port) : this(new EventBus(), address, port, null) { }
+        public TcpBridgeClient(string address, int port, BridgeClientOption option) : this(new EventBus(), address, port, option) { }
 
         //Main constructor. if vertx provided, it will use that's eventbus. otherwise it will use its own eventbus.
-        public TcpBridgeClient(string address, int port, BridgeClientOption option)
+        public TcpBridgeClient(IEventBus eventBus, string address, int port, BridgeClientOption option)
         {
             this.option = new BridgeClientOption(option);
 
             this.address = address;
             this.port = port;
+            this.eventBus = eventBus;
 
             this.SocketReady = new ManualResetEvent(false);
             this.IsClosed = new ManualResetEvent(false);
@@ -210,7 +217,7 @@ namespace io.vertx.ext.tcpbridge.client
             this.Client?.Close();
         }
 
-        IMessageConsumer<T> Register<T>(string address, Action<IMessage<T>> handler)
+        public IMessageConsumer<T> Register<T>(string address, Action<IMessage<T>> handler)
         {
             IMessageConsumer<T> toReturn = null;
             lock (addressRegistry)
@@ -226,7 +233,7 @@ namespace io.vertx.ext.tcpbridge.client
             return toReturn;
         }
 
-        void UnRegister<T>(IMessageConsumer<T> consumer)
+        public void UnRegister<T>(IMessageConsumer<T> consumer)
         {
             bool found = false;
             lock (addressRegistry)
@@ -240,7 +247,17 @@ namespace io.vertx.ext.tcpbridge.client
             }
         }
 
-        public void Send(string address, object body, string replyAddress, DeliveryOptions deliveryOptions)
+        public void Send(string address, object body)
+        {
+            this.Send<object>(address, body, null, null);
+        }
+
+        public void Publish(string address, object body)
+        {
+            this.Publish(address, body, null);
+        }
+
+        public void Send<T>(string address, object body, DeliveryOptions deliveryOptions, Action<IAsyncResult<IMessage<T>>> replyHandle)
         {
             Message<object> message = new Message<object>(this.eventBus, address, body, null, true);
             this.WriteSendOrPublish(message);
@@ -252,7 +269,7 @@ namespace io.vertx.ext.tcpbridge.client
             this.WriteSendOrPublish(message);
         }
 
-        private void WriteSendOrPublish(Message<object> message)
+        private bool WriteSendOrPublish(Message<object> message)
         {
             JObject sendObject = new JObject
             {
@@ -262,10 +279,10 @@ namespace io.vertx.ext.tcpbridge.client
                 [KeyReplayAddress] = message.ReplyAddress,
                 //[KeyHeaders] = message.Headers?.getAsJSON()
             };
-            this.WriteFrame(sendObject);
+            return this.WriteFrame(sendObject);
         }
 
-        private void WriteRegisterOrRemove(bool isRegister, string address)
+        private bool WriteRegisterOrRemove(bool isRegister, string address)
         {
             JObject sendObject = new JObject
             {
@@ -273,7 +290,7 @@ namespace io.vertx.ext.tcpbridge.client
                 [KeyAddress] = address,
                 //[KeyHeaders] = headers?.getAsJSON()
             };
-            this.WriteFrame(sendObject);
+            return this.WriteFrame(sendObject);
         }
 
         private bool WriteFrame(JObject sendObject)
