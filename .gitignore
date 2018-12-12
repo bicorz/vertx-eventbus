@@ -2,12 +2,4 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/csharp/.vs/Vertx/v15
-/csharp/Lib.Vertx.TcpBridge/bin/Debug
-/csharp/Lib.Vertx.TcpBridge/obj/Debug
-/csharp/packages/log4net.2.0.8/lib
-/csharp/packages/Newtonsoft.Json.12.0.1/lib
-/csharp/packages
-/csharp/TestMain/bin/Debug
-/csharp/TestMain/obj/Debug
-/csharp/Lib.Vertx.TcpBridge/*.nupkg
+/.vs/Vertx
